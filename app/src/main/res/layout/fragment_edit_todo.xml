@@ -15,7 +15,7 @@
 
         <variable
             name="saveListener"
-            type="com.example.todoapp.view.TodoSaveChangesClick" />
+            type="com.example.todoapp.view.TodoEditClickListener" />
 
 
     </data>
@@ -93,7 +93,7 @@
             android:text="Submit"
             app:layout_constraintEnd_toEndOf="@+id/textInputLayout2"
             app:layout_constraintTop_toBottomOf="@+id/radioGroupPriority"
-            android:onClick="@{(view) -> saveListener.onTodoSaveChangesClick(view,todo)}" />
+            android:onClick="@{saveListener::onTodoEditClick}" />
 
         <TextView
             android:id="@+id/textView4"

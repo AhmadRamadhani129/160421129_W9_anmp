@@ -16,7 +16,7 @@ import com.example.todoapp.databinding.FragmentEditTodoBinding
 import com.example.todoapp.model.Todo
 import com.example.todoapp.viewmodel.DetailTodoViewModel
 
-class EditTodoFragment : Fragment(), RadioClickListener, TodoSaveChangesClick {
+class EditTodoFragment : Fragment(), RadioClickListener, TodoEditClickListener {
     private lateinit var binding: FragmentEditTodoBinding
     private lateinit var viewModel: DetailTodoViewModel
 
@@ -33,14 +33,23 @@ class EditTodoFragment : Fragment(), RadioClickListener, TodoSaveChangesClick {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this).get(DetailTodoViewModel::class.java)
 
+        binding.titleTodo.text = "Edit Todo"
+
         val uuid = EditTodoFragmentArgs.fromBundle(requireArguments()).uuid
         viewModel.fetch(uuid)
-        observeViewModel()
 
-        binding.titleTodo.text = "Edit Todo"
-        binding.btnSubmit.text = "Save Changes"
+        binding.btnSubmit.setOnClickListener {
+            val radioID = binding.radioGroupPriority.checkedRadioButtonId
+            val radio = view.findViewById<RadioButton>(radioID)
+            val priority = radio.tag.toString().toInt()
+
+            viewModel.update(binding.txtTitle.text.toString(), binding.txtNotes.text.toString(), priority, uuid)
+
+            Navigation.findNavController(it).popBackStack()
+        }
         binding.radioListener = this
         binding.saveListener = this
+        observeViewModel()
 
 
 //        binding.btnSubmit.setOnClickListener {
@@ -53,16 +62,14 @@ class EditTodoFragment : Fragment(), RadioClickListener, TodoSaveChangesClick {
 //        }
     }
 
-    override fun onRadioClick(v: View, priority: Int, obj: Todo) {
-        obj.priority = v.tag.toString().toInt()
+    override fun onRadioClick(v: View) {
+        binding.todo!!.priority = v.tag.toString().toInt()
     }
 
-    override fun onTodoSaveChangesClick(v: View, obj: Todo) {
-        viewModel.updateTodo(binding.todo!!)
-        Toast.makeText(v.context, "Todo Updated", Toast.LENGTH_SHORT).show()
-    }
-
-
+//    override fun onTodoSaveChangesClick(v: View, obj: Todo) {
+//        viewModel.updateTodo(binding.todo!!)
+//        Toast.makeText(v.context, "Todo Updated", Toast.LENGTH_SHORT).show()
+//    }
 
     fun observeViewModel(){
         viewModel.todoLd.observe(viewLifecycleOwner, Observer {
@@ -77,6 +84,10 @@ class EditTodoFragment : Fragment(), RadioClickListener, TodoSaveChangesClick {
 //            }
         }
         )
+    }
+
+    override fun onTodoEditClick(v: View) {
+        viewModel.updateTodo(binding.todo!!)
     }
 
 }
